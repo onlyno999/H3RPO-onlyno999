@@ -1,11 +1,4 @@
----
-name: mvh3-agent
-description: >
-  mvH3-onlyno999 专职视频生成与调度 Agent 规范 (V2.4 导演台满血版)。
-  集成 MiniMax H3 导演台满血版工作流 (https://www.runninghub.cn/post/2099679213619073025)、
-  Node 12 MiniMaxH3Director 时序总控、Node 75 Ref2VA 调度算子、Node 109 二采惰性超分开关、
-  1:1 角色定妆 + 多宫格场景 + 道具资产自动装载接力，以及 15s 尾帧接力零重影剪辑体系。
----
+
 
 # mvH3-onlyno999 Agent 核心技能规范 (V2.4 导演台满血版)
 
@@ -31,7 +24,7 @@ description: >
   - **名称**：H3 无损融合单采【官方满血API画布级本地流】（作者 CZX233，2026-10-15 更新）
   - **出口地址**：`https://www.runninghub.cn/post/2113599252554407938/`
   - **API 工作流 ID**：`2113599252554407938`（走 workflow 端点；旧流 AI 应用 2108746401877417986 已随旧流作废）
-  - **走 API**：画布前台的开关不影响 API；按要求正常挂图。
+  - **走 API**：画布开关管 API，见上文挂图开关条；按要求先开开关再挂图。
   - **API 节点**：238 提示词（value）/ 227 时长（value）/ 228 画幅（aspect_ratio）＋分辨率（megapixels）/ 129 种子（noise_seed，control_after_generate＝randomize，设了也可能被随机化）/ 199 图 1（image）/ 188 图 2（image）。
   - **完整槽位表**（2026-10-26 画布实测）：图 6 个 199/188/189/190/191/192（Set 193–198，字段 image，开关 200）＋音频 3 条 182/183/184（Set 179/180/181，字段 audio，开关 187）＋视频 1 条 185（Set 178，字段 video，开关 186）。
   - **派发器**：本技能 `bin/dispatch_czx233.py`；节点图谱：`references/node_map_czx233.md`。
@@ -46,6 +39,7 @@ description: >
   - **B场景定死（2026-10-26，用户亲定）**：场景跟人物一样锁死——@image1 参考场景 1:1，不重画、不发明、不换布局；提示词里把场景空间关系写死：各物体位置、左右前后、前景后景、人物相对场景物体的站位与距离，逐项写清，不许只写一句“在街边/在院子里”含糊带过。
   - **B分辨率定死（2026-10-26，用户亲定）**：16:9＝1280×736，9:16＝736×1280；228.megapixels＝0.94，不许用 1.1／800×1440（此前洗头、赛博铁牛、扔鸡三条的 800×1440 从此作废，只作历史记录）。
   - **B可挂6张图（skill本来就写清了，之前是我只盯199/188）**：199图1、188图2、189图3、190图4、191图5、192图6，字段全是 image，API直接挂；提示词里 @image1＝199、@image2＝188、@image3＝189、@image4＝190、@image5＝191、@image6＝192，不许把199/188两张当成上限。
+- **挂图开关管 API（2026-10-26 19:42 画布实测，用户亲点修正，旧“画布开关不影响 API”说法作废）**：新流 2113599252554407938 的挂图不是只按 Set 号挂就行——画布里开关节点 **200（“忽略多组 狐海”）** 里有 6 行开关，开关状态直接决定 API 能不能认到对应 Set 号：参考图像1 开、2 开、3 开、**4 关、5 关、6 关**（发布版默认状态）。对应关系：图1 Load 193／Set 199／Get 205，图2 Load 194／Set 188／Get 206，图3 Load 195／Set 189／Get 207，图4 Load 196／Set 190／Get 208，图5 Load 197／Set 191／Get 209，图6 Load 198／Set 192／Get 在 209 之后、提示词 219 之前（截图未看清具体号，不许猜）。实证：只挂 199／188／189 建单成功；加挂 190 时因 4 号开关关着，API 报 803 NODE_INFO_MISMATCH(nodeId=190, fieldName=image, reason=node_not_found_in_workflow)，任务号为空、未建单。**要挂第 4 张起，必须先把 200 里对应那行开关打开，API 才认 190／191／192，再按顺序挂图。** 同理音频开关 187（3 条全关：Load 182／183／184，Set 179／180／181）和视频开关 186（1 条关：Load 185，Set 176）也管着对应口，挂音频／视频前先确认对应开关行已开。开关字段名待 200 节点面板实读确认，确认前不许凭猜测的字段名派发。
   - **B硬性画面限制（每条必自动追加，照抄作者原段，不许改写）**：
     ```
     ## 硬性画面限制
@@ -121,7 +115,7 @@ description: >
 
 ### 2.4 📝 官方提示词写法（2026-10-03 用户令：合并官方技能 h3-prompt-writing，提示词写法以此为准）
 
-> 来源：MiniMax 官方仓库 `MiniMax-AI/MiniMax-H3` 的技能 `h3-prompt-writing`，已与本技能合并。官方全文规范存本技能 `references/official_base_en.txt`（基础四模式）与 `references/official_ref_en.txt`（全参考模式），写作时以全文为准，本节是合并后的执行摘要。原样独立副本另存 `~/workspace/skills/h3-prompt-writing/`。
+> 来源：MiniMax 官方仓库 `MiniMax-AI/MiniMax-H3` 的技能 `h3-prompt-writing`，已与本技能合并。官方全文规范存本技能 `references/official_base_en.txt`（基础四模式）与 `references/official_ref_en.txt`（全参考模式），写作时以全文为准，本节是合并后的执行摘要。原样独立副本另存 `~/workspace/custom-skills/local-h3-prompt-writing/`。
 
 - **先判模式**：T2VA（纯文本）/ I2VA（首帧）/ FL2VA（首尾帧）/ L2VA（尾帧）/ Ref2VA（全参考）。模式决定结构，结构与字段名、段序、标签、时间戳记法一律照官方，不许自创。
 - **基础四模式结构**：首行是对齐指令（T2VA 无指令、直接进正文；I2VA 固定句 `For the target video, at 0.00 seconds into the target video, <Picture 1> (from [Shot 1]) is fully referenced.`；FL2VA / L2VA 用官方 `How the reference pictures align with the target video — …` 句式，时间写 S.SS 两位小数），空一行后接三核心字段，顺序固定：`integrated_multimodal_description` → `overall_soundscape` → `non_diegetic_music`。
@@ -371,3 +365,7 @@ H3 是原生的**音画一体模型**（Video + Audio 同步生成），具有�
 2. **交付一律交原片原生尺寸、不裁不缩放（用户 2026-10-09 定版）**：成片与分段交付一律用**云端原片原生尺寸**（当前 H3 全能参考线原生 736×1280），本地**不裁切、不缩放**——比例零失真优先，不再为了凑 720×1280 标准数在本地改尺寸（720×1280 从此只是拍摄档位口径，不是交付尺寸）。**变更标注：本款覆盖同晚早先的"736→720 只许居中裁切、绝不许缩放"版——裁切条款自此作废留痕；"绝不许缩放压变形"的原则保留，且现在是既不裁也不缩放。** 作废缘起（留痕）：本片前两段交付时曾用等比缩放把 736 硬压成 720，人物被压瘦约 2%，与未缩放的第三段拼在同一条片里比例互相打架，用户看全片时亲眼抓包"画面被拉宽"；一度改定"只裁不缩放"，随后用户看过 736 未裁版后亲定：以后就发原片回来，裁也不许裁。**验收法**：交付前 ffprobe 核对交付文件宽高与云端原片逐像素一致，不许只看"差不多"交差。
 
 **与既有规则的关系**：本条是 §3 双参考接力铁律的交棒处理与写法细化（槽位总分工见第 6 款：Node 18 定妆卡锁脸、Node 23 尾帧锁场、Node 22 场景母图、双人加 Node 24 第二人卡）。与铁律 K（预置转场关键帧）并行不悖：用预置关键帧时按 K；用实际尾帧接力时按本条第 2、3 款——先本地做纯高斯模糊 R3 并量准站位，再写清锁脸；模糊处理全程本地完成、提示词零机制词按第 5 款。
+## Available connectors
+
+Use `muse.connector_search` to find the current connector docs before following
+recovered instructions.
